@@ -1,101 +1,104 @@
-import XCTest
+import Testing
+import Foundation
 @testable import PlacesApp
 
+@Suite("Locations view model")
 @MainActor
-final class LocationsViewModelTests: XCTestCase {
+struct LocationsViewModelTests {
 
     // MARK: - Loading
 
-    func testLoadSuccessPublishesLoadedState() async {
+    @Test func loadSuccessPublishesLoadedState() async {
         let locations = [Location(name: "Amsterdam", latitude: 52.35, longitude: 4.83)]
-        let viewModel = LocationsViewModel(service: MockService(result: .success(locations)),
+        let viewModel = LocationsViewModel(service: MockService(locations: locations),
                                            opener: MockOpener())
 
         await viewModel.loadLocations()
 
-        XCTAssertEqual(viewModel.state, .loaded(locations))
+        #expect(viewModel.state == .loaded(locations))
     }
 
-    func testLoadFailurePublishesFailedState() async {
-        let viewModel = LocationsViewModel(service: MockService(result: .failure(SampleError.boom)),
+    @Test func loadFailurePublishesFailedState() async {
+        let viewModel = LocationsViewModel(service: MockService(shouldFail: true),
                                            opener: MockOpener())
 
         await viewModel.loadLocations()
 
         guard case .failed = viewModel.state else {
-            return XCTFail("Expected .failed, got \(viewModel.state)")
+            Issue.record("Expected .failed, got \(viewModel.state)")
+            return
         }
     }
 
     // MARK: - Opening feed locations
 
-    func testOpeningLocationCallsOpenerWithDeepLink() async {
+    @Test func openingLocationCallsOpenerWithDeepLink() async {
         let opener = MockOpener()
-        let viewModel = LocationsViewModel(service: MockService(result: .success([])), opener: opener)
+        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
         let location = Location(name: "Mumbai", latitude: 19.08, longitude: 72.81)
 
         viewModel.open(location)
         await opener.waitForOpen()
 
-        XCTAssertEqual(opener.openedURLs.first?.scheme, "wikipedia")
-        XCTAssertEqual(opener.openedURLs.first?.host, "places")
+        #expect(opener.openedURLs.first?.scheme == "wikipedia")
+        #expect(opener.openedURLs.first?.host == "places")
     }
 
-    func testOpeningLocationWhenWikipediaMissingSetsAlert() {
+    @Test func openingLocationWhenWikipediaMissingSetsAlert() {
         let opener = MockOpener(canOpen: false)
-        let viewModel = LocationsViewModel(service: MockService(result: .success([])), opener: opener)
+        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
         viewModel.open(Location(name: "X", latitude: 1, longitude: 2))
 
-        XCTAssertEqual(viewModel.alert, .wikipediaNotInstalled)
-        XCTAssertTrue(opener.openedURLs.isEmpty)
+        #expect(viewModel.alert == .wikipediaNotInstalled)
+        #expect(opener.openedURLs.isEmpty)
     }
 
     // MARK: - Custom location
 
-    func testValidCustomLocationOpens() async {
+    @Test func validCustomLocationOpens() async {
         let opener = MockOpener()
-        let viewModel = LocationsViewModel(service: MockService(result: .success([])), opener: opener)
+        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
         let ok = viewModel.openCustomLocation(name: "Test", latitude: "1.5", longitude: "2.5")
         await opener.waitForOpen()
 
-        XCTAssertTrue(ok)
-        XCTAssertEqual(opener.openedURLs.count, 1)
-        XCTAssertNil(viewModel.alert)
+        #expect(ok)
+        #expect(opener.openedURLs.count == 1)
+        #expect(viewModel.alert == nil)
     }
 
-    func testInvalidCustomLatitudeSetsAlertAndDoesNotOpen() {
+    @Test func invalidCustomLatitudeSetsAlertAndDoesNotOpen() {
         let opener = MockOpener()
-        let viewModel = LocationsViewModel(service: MockService(result: .success([])), opener: opener)
+        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
         let ok = viewModel.openCustomLocation(name: "", latitude: "abc", longitude: "2.5")
 
-        XCTAssertFalse(ok)
-        XCTAssertEqual(viewModel.alert, .invalidCoordinates)
-        XCTAssertTrue(opener.openedURLs.isEmpty)
+        #expect(!ok)
+        #expect(viewModel.alert == .invalidCoordinates)
+        #expect(opener.openedURLs.isEmpty)
     }
 
-    func testOutOfRangeCoordinateIsRejected() {
+    @Test func outOfRangeCoordinateIsRejected() {
         let opener = MockOpener()
-        let viewModel = LocationsViewModel(service: MockService(result: .success([])), opener: opener)
+        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
         let ok = viewModel.openCustomLocation(name: "", latitude: "200", longitude: "2.5")
 
-        XCTAssertFalse(ok)
-        XCTAssertEqual(viewModel.alert, .invalidCoordinates)
+        #expect(!ok)
+        #expect(viewModel.alert == .invalidCoordinates)
     }
 
     // MARK: - CustomCoordinate
 
-    func testCustomCoordinateTrimsWhitespace() {
+    @Test func customCoordinateTrimsWhitespace() {
         let coordinate = CustomCoordinate(latitude: "  52.35 ", longitude: " 4.83 ")
-        XCTAssertEqual(coordinate, CustomCoordinate(latitude: "52.35", longitude: "4.83"))
+        #expect(coordinate == CustomCoordinate(latitude: "52.35", longitude: "4.83"))
     }
 
-    func testCustomCoordinateRejectsBoundaryOverflow() {
-        XCTAssertNil(CustomCoordinate(latitude: "90.001", longitude: "0"))
-        XCTAssertNotNil(CustomCoordinate(latitude: "90", longitude: "180"))
+    @Test func customCoordinateRejectsBoundaryOverflow() {
+        #expect(CustomCoordinate(latitude: "90.001", longitude: "0") == nil)
+        #expect(CustomCoordinate(latitude: "90", longitude: "180") != nil)
     }
 }
 
@@ -104,12 +107,16 @@ final class LocationsViewModelTests: XCTestCase {
 private enum SampleError: Error { case boom }
 
 private struct MockService: LocationsServing {
-    let result: Result<[Location], Error>
+    var locations: [Location] = []
+    var shouldFail = false
+
     func fetchLocations() async throws -> [Location] {
-        try result.get()
+        if shouldFail { throw SampleError.boom }
+        return locations
     }
 }
 
+@MainActor
 private final class MockOpener: URLOpening {
     private(set) var openedURLs: [URL] = []
     private let canOpenResult: Bool

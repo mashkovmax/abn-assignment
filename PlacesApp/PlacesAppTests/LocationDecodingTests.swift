@@ -1,10 +1,12 @@
-import XCTest
+import Testing
+import Foundation
 @testable import PlacesApp
 
-final class LocationDecodingTests: XCTestCase {
+@Suite("Location decoding")
+struct LocationDecodingTests {
 
     /// Mirrors the real feed, including the final entry that has no `name`.
-    private let sampleJSON = """
+    let sampleJSON = """
     {
       "locations": [
         { "name": "Amsterdam", "lat": 52.3547498, "long": 4.8339215 },
@@ -14,36 +16,36 @@ final class LocationDecodingTests: XCTestCase {
     }
     """.data(using: .utf8)!
 
-    func testDecodesAllLocations() throws {
+    @Test func decodesAllLocations() throws {
         let response = try JSONDecoder().decode(LocationsResponse.self, from: sampleJSON)
-        XCTAssertEqual(response.locations.count, 3)
+        #expect(response.locations.count == 3)
     }
 
-    func testMapsLatLongKeys() throws {
+    @Test func mapsLatLongKeys() throws {
         let response = try JSONDecoder().decode(LocationsResponse.self, from: sampleJSON)
         let amsterdam = response.locations[0]
-        XCTAssertEqual(amsterdam.name, "Amsterdam")
-        XCTAssertEqual(amsterdam.latitude, 52.3547498, accuracy: 0.0000001)
-        XCTAssertEqual(amsterdam.longitude, 4.8339215, accuracy: 0.0000001)
+        #expect(amsterdam.name == "Amsterdam")
+        #expect(abs(amsterdam.latitude - 52.3547498) < 0.0000001)
+        #expect(abs(amsterdam.longitude - 4.8339215) < 0.0000001)
     }
 
-    func testDecodesEntryWithoutName() throws {
+    @Test func decodesEntryWithoutName() throws {
         let response = try JSONDecoder().decode(LocationsResponse.self, from: sampleJSON)
         let nameless = response.locations[2]
-        XCTAssertNil(nameless.name)
-        XCTAssertEqual(nameless.latitude, 40.4380638, accuracy: 0.0000001)
+        #expect(nameless.name == nil)
+        #expect(abs(nameless.latitude - 40.4380638) < 0.0000001)
     }
 
-    func testDisplayNameFallsBackToCoordinates() throws {
+    @Test func displayNameFallsBackToCoordinates() throws {
         let response = try JSONDecoder().decode(LocationsResponse.self, from: sampleJSON)
-        XCTAssertEqual(response.locations[0].displayName, "Amsterdam")
+        #expect(response.locations[0].displayName == "Amsterdam")
         // Nameless entry shows its coordinate string instead.
-        XCTAssertEqual(response.locations[2].displayName, "40.4381, -3.7496")
+        #expect(response.locations[2].displayName == "40.4381, -3.7496")
     }
 
-    func testIDIsStableForSameLocation() {
+    @Test func idIsStableForSameLocation() {
         let a = Location(name: "X", latitude: 1, longitude: 2)
         let b = Location(name: "X", latitude: 1, longitude: 2)
-        XCTAssertEqual(a.id, b.id)
+        #expect(a.id == b.id)
     }
 }
