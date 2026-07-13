@@ -6,7 +6,7 @@ protocol LocationsServing: Sendable {
     func fetchLocations() async throws -> [Location]
 }
 
-enum LocationsServiceError: LocalizedError {
+enum LocationsServiceError: LocalizedError, Equatable {
     case invalidResponse
     case badStatus(Int)
 
