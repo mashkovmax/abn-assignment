@@ -22,12 +22,8 @@ struct LocationsListView: View {
                     }
                 }
                 .sheet(isPresented: $isPresentingCustomLocation) {
-                    CustomLocationView { name, latitude, longitude in
-                        let opened = viewModel.openCustomLocation(
-                            name: name, latitude: latitude, longitude: longitude
-                        )
-                        if opened { isPresentingCustomLocation = false }
-                        return opened
+                    CustomLocationView { location in
+                        viewModel.addCustomLocation(location)
                     }
                 }
                 .alert(item: $viewModel.alert) { alert in
@@ -60,19 +56,22 @@ struct LocationsListView: View {
 
     private func loadedList(_ locations: [Location]) -> some View {
         List {
+            if !viewModel.customLocations.isEmpty {
+                Section("Your locations") {
+                    locationRows(viewModel.customLocations)
+                }
+            }
+
             if locations.isEmpty {
-                Text("No locations available.")
-                    .foregroundStyle(.secondary)
+                Section {
+                    Text("No locations available.")
+                        .foregroundStyle(.secondary)
+                }
             } else {
                 Section {
-                    ForEach(locations) { location in
-                        Button {
-                            viewModel.open(location)
-                        } label: {
-                            LocationRow(location: location)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    locationRows(locations)
+                } header: {
+                    Text("From the feed")
                 } footer: {
                     Text("Tap a location to open it in Wikipedia's Places tab.")
                 }
@@ -81,6 +80,18 @@ struct LocationsListView: View {
         .listStyle(.insetGrouped)
         .refreshable {
             await viewModel.loadLocations()
+        }
+    }
+
+    @ViewBuilder
+    private func locationRows(_ locations: [Location]) -> some View {
+        ForEach(locations) { location in
+            Button {
+                viewModel.open(location)
+            } label: {
+                LocationRow(location: location)
+            }
+            .buttonStyle(.plain)
         }
     }
 

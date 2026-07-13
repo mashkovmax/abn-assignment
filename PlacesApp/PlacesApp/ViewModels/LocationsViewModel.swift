@@ -18,6 +18,9 @@ final class LocationsViewModel {
     }
 
     private(set) var state: LoadState = .idle
+    /// Locations the user added by hand (custom coordinate or geocoded city).
+    /// Kept separate from the feed so a refresh doesn't wipe them.
+    private(set) var customLocations: [Location] = []
     var alert: AlertMessage?
 
     private let service: LocationsServing
@@ -55,25 +58,14 @@ final class LocationsViewModel {
         openWikipedia(url)
     }
 
-    /// Validates free-form custom input and, if valid, opens Wikipedia there.
-    /// Returns `true` when the input was valid and an open was attempted.
-    @discardableResult
-    func openCustomLocation(name: String, latitude: String, longitude: String) -> Bool {
-        guard let coordinate = CustomCoordinate(latitude: latitude, longitude: longitude) else {
-            alert = .invalidCoordinates
-            return false
-        }
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let url = WikipediaDeepLink.placesURL(
-            latitude: coordinate.latitude,
-            longitude: coordinate.longitude,
-            name: trimmedName.isEmpty ? nil : trimmedName
-        ) else {
-            alert = .invalidLocation
-            return false
-        }
-        openWikipedia(url)
-        return true
+    // MARK: - Custom locations
+
+    /// Adds a (pre-validated) location to the top of the user's locations list.
+    /// The user then taps it to open Wikipedia, like any other location.
+    func addCustomLocation(_ location: Location) {
+        // Move an existing duplicate to the top rather than adding it twice.
+        customLocations.removeAll { $0.id == location.id }
+        customLocations.insert(location, at: 0)
     }
 
     private func openWikipedia(_ url: URL) {
@@ -111,10 +103,6 @@ struct AlertMessage: Identifiable, Equatable {
     static let wikipediaNotInstalled = AlertMessage(
         title: "Wikipedia not installed",
         message: "Install the (modified) Wikipedia app to open this location in the Places tab."
-    )
-    static let invalidCoordinates = AlertMessage(
-        title: "Invalid coordinates",
-        message: "Enter a latitude between -90 and 90 and a longitude between -180 and 180."
     )
     static let invalidLocation = AlertMessage(
         title: "Could not open location",

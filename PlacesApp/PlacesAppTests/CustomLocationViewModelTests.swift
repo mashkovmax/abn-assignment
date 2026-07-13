@@ -48,6 +48,57 @@ struct CustomLocationViewModelTests {
         viewModel.name = "Paris"
         #expect(viewModel.canLookUp)
     }
+
+    // MARK: - Validation
+
+    @Test func validatedLocationBuildsLocationFromValidInput() throws {
+        let viewModel = makeViewModel()
+        viewModel.name = "Test"
+        viewModel.latitude = "1.5"
+        viewModel.longitude = "2.5"
+
+        let location = try #require(viewModel.validatedLocation())
+        #expect(location.name == "Test")
+        #expect(location.latitude == 1.5)
+        #expect(location.longitude == 2.5)
+        #expect(viewModel.validationMessage == nil)
+    }
+
+    @Test func validatedLocationHasNilNameWhenNameBlank() throws {
+        let viewModel = makeViewModel()
+        viewModel.latitude = "1"
+        viewModel.longitude = "2"
+
+        let location = try #require(viewModel.validatedLocation())
+        #expect(location.name == nil)
+    }
+
+    @Test func validatedLocationRejectsInvalidCoordinatesAndSetsMessage() {
+        let viewModel = makeViewModel()
+        viewModel.latitude = "abc"
+        viewModel.longitude = "2.5"
+
+        #expect(viewModel.validatedLocation() == nil)
+        #expect(viewModel.validationMessage != nil)
+    }
+
+    @Test func validatedLocationRejectsOutOfRange() {
+        let viewModel = makeViewModel()
+        viewModel.latitude = "200"
+        viewModel.longitude = "2.5"
+
+        #expect(viewModel.validatedLocation() == nil)
+    }
+
+    @Test func notFoundErrorHasDescription() {
+        #expect(GeocodingError.notFound.errorDescription?.isEmpty == false)
+    }
+
+    // MARK: - Helper
+
+    private func makeViewModel() -> CustomLocationViewModel {
+        CustomLocationViewModel(geocoder: MockGeocoder(result: .failure(GeocodingError.notFound)))
+    }
 }
 
 // MARK: - Test double

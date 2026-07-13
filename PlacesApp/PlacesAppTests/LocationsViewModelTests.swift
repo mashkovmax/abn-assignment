@@ -56,37 +56,39 @@ struct LocationsViewModelTests {
 
     // MARK: - Custom location
 
-    @Test func validCustomLocationOpens() async {
+    @Test func addCustomLocationInsertsAtTop() {
         let opener = MockOpener()
         let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
-        let ok = viewModel.openCustomLocation(name: "Test", latitude: "1.5", longitude: "2.5")
-        await opener.waitForOpen()
+        viewModel.addCustomLocation(Location(name: "Test", latitude: 1.5, longitude: 2.5))
 
-        #expect(ok)
-        #expect(opener.openedURLs.count == 1)
-        #expect(viewModel.alert == nil)
-    }
-
-    @Test func invalidCustomLatitudeSetsAlertAndDoesNotOpen() {
-        let opener = MockOpener()
-        let viewModel = LocationsViewModel(service: MockService(), opener: opener)
-
-        let ok = viewModel.openCustomLocation(name: "", latitude: "abc", longitude: "2.5")
-
-        #expect(!ok)
-        #expect(viewModel.alert == .invalidCoordinates)
+        #expect(viewModel.customLocations.count == 1)
+        #expect(viewModel.customLocations.first?.name == "Test")
+        // Adding should not open Wikipedia — the user taps the row to do that.
         #expect(opener.openedURLs.isEmpty)
     }
 
-    @Test func outOfRangeCoordinateIsRejected() {
+    @Test func addingDuplicateMovesItToTopWithoutDuplicating() {
+        let viewModel = LocationsViewModel(service: MockService(), opener: MockOpener())
+
+        viewModel.addCustomLocation(Location(name: "A", latitude: 1, longitude: 1))
+        viewModel.addCustomLocation(Location(name: "B", latitude: 2, longitude: 2))
+        viewModel.addCustomLocation(Location(name: "A", latitude: 1, longitude: 1))
+
+        #expect(viewModel.customLocations.count == 2)
+        #expect(viewModel.customLocations.first?.name == "A")
+    }
+
+    @Test func addedCustomLocationCanThenBeOpened() async throws {
         let opener = MockOpener()
         let viewModel = LocationsViewModel(service: MockService(), opener: opener)
 
-        let ok = viewModel.openCustomLocation(name: "", latitude: "200", longitude: "2.5")
+        viewModel.addCustomLocation(Location(name: "Test", latitude: 1.5, longitude: 2.5))
+        let added = try #require(viewModel.customLocations.first)
+        viewModel.open(added)
+        await opener.waitForOpen()
 
-        #expect(!ok)
-        #expect(viewModel.alert == .invalidCoordinates)
+        #expect(opener.openedURLs.first?.host == "places")
     }
 
     // MARK: - CustomCoordinate

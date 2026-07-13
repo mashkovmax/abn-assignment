@@ -48,9 +48,11 @@ A minimal app that demonstrates the feature.
 - Shows them in a `List`. Some feed entries have **no name** — those fall back to
   showing their coordinates.
 - **Tapping a location** opens the Wikipedia app at that coordinate.
-- The **＋** button lets the user enter a **custom location** (name optional,
-  latitude/longitude validated) and open Wikipedia there. It can also **look up a
-  city name** and fill in the coordinates automatically via `CLGeocoder`.
+- The **＋** button lets the user **add a custom location** (name optional,
+  latitude/longitude validated). It can also **look up a city name** and fill in
+  the coordinates automatically via MapKit geocoding (`MKGeocodingRequest`). The
+  added place appears at the top of the list under "Your locations", and the user
+  taps it there to open Wikipedia — the same interaction as any feed location.
 - Pull-to-refresh, loading/error states with retry, and a clear alert if the
   Wikipedia app isn't installed.
 
@@ -63,7 +65,7 @@ PlacesApp/
   Models/          Location, LocationsResponse (Codable, lat/long → latitude/longitude)
   Networking/      LocationsServing protocol + LocationsService (async URLSession)
   Deeplink/        WikipediaDeepLink (pure URL builder) + URLOpening abstraction
-  Geocoding/       Geocoding protocol + CLGeocoderService (city name → coordinate)
+  Geocoding/       Geocoding protocol + MapKitGeocoderService (city name → coordinate)
   ViewModels/      LocationsViewModel (@Observable, @MainActor)
   Views/           LocationsListView, CustomLocationView
 ```

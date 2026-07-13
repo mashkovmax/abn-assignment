@@ -1,15 +1,14 @@
 import SwiftUI
 
-/// A sheet letting the user open an arbitrary coordinate in Wikipedia's Places
-/// tab. The coordinate can be typed directly, or looked up from a city / place
-/// name via `CLGeocoder`.
+/// A sheet letting the user add an arbitrary coordinate to the locations list.
+/// The coordinate can be typed directly, or looked up from a city / place name
+/// via MapKit geocoding. Once added, the user taps it in the list to open it in
+/// Wikipedia's Places tab.
 ///
-/// The parent supplies `onOpen`, which validates + attempts the open and returns
-/// whether it succeeded; the sheet stays up on invalid input so the alert (owned
-/// by the parent) can be shown.
+/// The parent supplies `onAdd`, called with an already-validated `Location`.
+/// Validation and dismissal are handled here in the sheet.
 struct CustomLocationView: View {
-    /// `(name, latitude, longitude) -> openedSuccessfully`
-    let onOpen: (String, String, String) -> Bool
+    let onAdd: (Location) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = CustomLocationViewModel()
@@ -63,9 +62,12 @@ struct CustomLocationView: View {
 
                 Section {
                     Button {
-                        _ = onOpen(viewModel.name, viewModel.latitude, viewModel.longitude)
+                        if let location = viewModel.validatedLocation() {
+                            onAdd(location)
+                            dismiss()
+                        }
                     } label: {
-                        Text("Open in Wikipedia")
+                        Text("Add to list")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -73,7 +75,11 @@ struct CustomLocationView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                 } footer: {
-                    Text("Example: Amsterdam is 52.3547, 4.8339.")
+                    if let validationMessage = viewModel.validationMessage {
+                        Text(validationMessage).foregroundStyle(.red)
+                    } else {
+                        Text("Example: Amsterdam is 52.3547, 4.8339. It's added to the list — tap it there to open Wikipedia.")
+                    }
                 }
             }
             .navigationTitle("Custom location")
@@ -88,5 +94,5 @@ struct CustomLocationView: View {
 }
 
 #Preview {
-    CustomLocationView { _, _, _ in true }
+    CustomLocationView { _ in } // onAdd
 }

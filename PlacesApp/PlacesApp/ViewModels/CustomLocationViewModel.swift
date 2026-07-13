@@ -18,10 +18,11 @@ final class CustomLocationViewModel {
     var latitude = ""
     var longitude = ""
     private(set) var geocodeState: GeocodeState = .idle
+    private(set) var validationMessage: String?
 
     private let geocoder: Geocoding
 
-    init(geocoder: Geocoding = CLGeocoderService()) {
+    init(geocoder: Geocoding = MapKitGeocoderService()) {
         self.geocoder = geocoder
     }
 
@@ -31,6 +32,21 @@ final class CustomLocationViewModel {
 
     var canLookUp: Bool { !trimmedName.isEmpty }
     var isSearching: Bool { geocodeState == .searching }
+
+    /// Validates the entered coordinates and returns a `Location` to add, or
+    /// `nil` (setting `validationMessage`) if the input is invalid.
+    func validatedLocation() -> Location? {
+        guard let coordinate = CustomCoordinate(latitude: latitude, longitude: longitude) else {
+            validationMessage = "Enter a latitude between -90 and 90 and a longitude between -180 and 180."
+            return nil
+        }
+        validationMessage = nil
+        return Location(
+            name: trimmedName.isEmpty ? nil : trimmedName,
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude
+        )
+    }
 
     /// Geocodes the entered name and fills in the latitude/longitude fields.
     func lookUpCoordinates() async {
