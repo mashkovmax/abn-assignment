@@ -62,15 +62,38 @@ __attribute__((annotate("returns_localized_nsstring"))) static inline NSString *
 + (instancetype)wmf_placesActivityWithURL:(NSURL *)activityURL {
     NSURLComponents *components = [NSURLComponents componentsWithURL:activityURL resolvingAgainstBaseURL:NO];
     NSURL *articleURL = nil;
+    NSString *latString = nil;
+    NSString *lonString = nil;
+    NSString *locationName = nil;
     for (NSURLQueryItem *item in components.queryItems) {
         if ([item.name isEqualToString:@"WMFArticleURL"]) {
-            NSString *articleURLString = item.value;
-            articleURL = [NSURL URLWithString:articleURLString];
-            break;
+            articleURL = [NSURL URLWithString:item.value];
+        } else if ([item.name isEqualToString:@"lat"]) {
+            latString = item.value;
+        } else if ([item.name isEqualToString:@"lon"]) {
+            lonString = item.value;
+        } else if ([item.name isEqualToString:@"title"]) {
+            locationName = item.value;
         }
     }
     NSUserActivity *activity = [self wmf_pageActivityWithName:@"Places"];
     activity.webpageURL = articleURL;
+
+    // Support opening Places centered on arbitrary coordinates passed by a calling app,
+    // e.g. wikipedia://places?lat=52.3547498&lon=4.8339215&title=Amsterdam
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    NSNumber *latitude = latString ? [formatter numberFromString:latString] : nil;
+    NSNumber *longitude = lonString ? [formatter numberFromString:lonString] : nil;
+    if (latitude != nil && longitude != nil) {
+        NSMutableDictionary *userInfo = [activity.userInfo mutableCopy] ?: [NSMutableDictionary dictionary];
+        userInfo[@"WMFLatitude"] = latitude;
+        userInfo[@"WMFLongitude"] = longitude;
+        if (locationName.length > 0) {
+            userInfo[@"WMFLocationName"] = locationName;
+        }
+        activity.userInfo = userInfo;
+    }
     return activity;
 }
 

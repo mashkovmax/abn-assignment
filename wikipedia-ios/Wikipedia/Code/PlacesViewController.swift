@@ -2100,6 +2100,26 @@ class PlacesViewController: ArticleLocationCollectionViewController, UISearchBar
         currentSearch = PlaceSearch(filter: .top, type: .location, origin: .user, sortStyle: .links, string: nil, region: region, localizedDescription: title, searchResult: searchResult, siteURL: articleURL.wmf_site)
     }
 
+    /// Centers the Places map on an arbitrary coordinate (passed in by a calling app via
+    /// `wikipedia://places?lat=..&lon=..`) instead of the user's current location, and loads
+    /// the top articles around it. Mirrors `zoomAndPanMapView(toLocation:)` +
+    /// `performDefaultSearch(withRegion:)`, but suppresses the automatic recenter-on-user-location
+    /// that normally fires on the first Core Location update.
+    @objc public func showLocation(withLatitude latitude: CLLocationDegrees, longitude: CLLocationDegrees, name: String?) {
+        guard view != nil else { // force view instantiation
+            return
+        }
+        // Don't let the first location update pan the map back to the user's location.
+        panMapToNextLocationUpdate = false
+
+        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        let region = [coordinate].wmf_boundingRegion(with: 10000)
+        mapRegion = region
+
+        let description = (name?.isEmpty == false) ? name! : WMFLocalizedString("places-search-top-articles", value: "All top articles", comment: "A search suggestion for top articles")
+        currentSearch = PlaceSearch(filter: .top, type: .location, origin: .system, sortStyle: .links, string: nil, region: region, localizedDescription: description, searchResult: nil)
+    }
+
     fileprivate func searchForFirstSearchSuggestion() {
         if !searchSuggestionController.searches[PlaceSearchSuggestionController.completionSection].isEmpty {
             currentSearch = searchSuggestionController.searches[PlaceSearchSuggestionController.completionSection][0]
