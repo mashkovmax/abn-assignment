@@ -1,0 +1,209 @@
+import UIKit
+import WMF
+import WMFComponents
+import WMFData
+import WMFNativeLocalizations
+import WMFTestKitchen
+
+final class WMFHomeHostingController: WMFComponentHostingController<WMFHomeView> {}
+
+/// App-side root view controller for the Home tab. Hosts the SwiftUI `WMFHomeView` and configures the
+/// standard tab navigation bar (profile + tabs buttons), matching the other root tabs.
+final class HomeViewController: UIViewController, WMFNavigationBarConfiguring, Themeable {
+
+    private var theme: Theme
+    private let dataStore: MWKDataStore
+    let viewModel: WMFHomeViewModel
+    private let hostingController: WMFHomeHostingController
+
+    private var yirDataController: WMFYearInReviewDataController? {
+        return try? WMFYearInReviewDataController()
+    }
+
+    private let homeDataController = WMFHomeDataController.shared
+
+    init(dataStore: MWKDataStore, theme: Theme, viewModel: WMFHomeViewModel) {
+        self.dataStore = dataStore
+        self.theme = theme
+        self.viewModel = viewModel
+        self.hostingController = WMFHomeHostingController(rootView: WMFHomeView(viewModel: viewModel))
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.accessibilityIdentifier = AccessibilityIdentifiers.RootTab.homeButton
+        embedHostingController()
+
+        viewModel.didSelectLanguage = { [weak self] language in
+            self?.selectLanguage(language)
+        }
+        viewModel.didTapEditLanguages = { [weak self] in
+            self?.presentLanguagesViewController()
+        }
+        viewModel.didTapCustomizeInterests = { [weak self] in
+            self?.presentWhatsDrivingTest()
+        }
+        reloadLanguages()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureNavigationBar()
+        reloadLanguages()
+    }
+
+    // MARK: - Languages
+
+    private func reloadLanguages() {
+        let preferredLanguages = dataStore.languageLinkController.preferredLanguages
+        viewModel.languages = preferredLanguages.map { WMFLanguage(languageCode: $0.languageCode, languageVariantCode: $0.languageVariantCode) }
+
+        if let persisted = homeDataController.selectedLanguage(), preferredLanguages.contains(where: { $0.languageCode == persisted.languageCode }) {
+            viewModel.selectedLanguage = persisted
+        } else if let appLanguage = dataStore.languageLinkController.appLanguage {
+            viewModel.selectedLanguage = WMFLanguage(languageCode: appLanguage.languageCode, languageVariantCode: appLanguage.languageVariantCode)
+        } else if let first = preferredLanguages.first {
+            viewModel.selectedLanguage = WMFLanguage(languageCode: first.languageCode, languageVariantCode: first.languageVariantCode)
+        }
+    }
+
+    private func selectLanguage(_ language: WMFLanguage) {
+        homeDataController.setSelectedLanguage(language)
+        viewModel.selectedLanguage = language
+    }
+
+    private func presentLanguagesViewController() {
+        let languagesVC = WMFPreferredLanguagesViewController.preferredLanguagesViewController()
+        languagesVC.showExploreFeedCustomizationSettings = true
+        languagesVC.delegate = self
+        (languagesVC as Themeable?)?.apply(theme: theme)
+        let navVC = WMFComponentNavigationController(rootViewController: languagesVC, modalPresentationStyle: .overFullScreen)
+        present(navVC, animated: true)
+    }
+
+    // MARK: - What's Driving (test deep-link)
+
+    // TODO: Temporary. Presents "What's driving your feed" modally to test the settings entry point. You can delete if you're working on implementing the feed.
+    private var homeFeedSettingsCoordinator: HomeFeedSettingsCoordinator?
+    private func presentWhatsDrivingTest() {
+        guard let navigationController else { return }
+        let coordinator = HomeFeedSettingsCoordinator(navigationController: navigationController, theme: theme, initialView: .modalFromFeed, presentation: .modal)
+        homeFeedSettingsCoordinator = coordinator
+        coordinator.start()
+    }
+
+    private func embedHostingController() {
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingController.view)
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        hostingController.didMove(toParent: self)
+    }
+
+    // MARK: - Coordinators
+
+    private var _yirCoordinator: YearInReviewCoordinator?
+    private var yirCoordinator: YearInReviewCoordinator? {
+        guard let navigationController, let yirDataController else { return nil }
+        if let _yirCoordinator { return _yirCoordinator }
+        let coordinator = YearInReviewCoordinator(navigationController: navigationController, theme: theme, dataStore: dataStore, dataController: yirDataController)
+        coordinator.badgeDelegate = self
+        _yirCoordinator = coordinator
+        return coordinator
+    }
+
+    private lazy var tabsCoordinator: TabsOverviewCoordinator? = { [weak self] in
+        guard let self, let nav = self.navigationController else { return nil }
+        return TabsOverviewCoordinator(navigationController: nav, theme: self.theme, dataStore: self.dataStore)
+    }()
+
+    private var _profileCoordinator: ProfileCoordinator?
+    private var profileCoordinator: ProfileCoordinator? {
+        guard let navigationController, let yirCoordinator else { return nil }
+        if let _profileCoordinator { return _profileCoordinator }
+        let coordinator = ProfileCoordinator(navigationController: navigationController, theme: theme, dataStore: dataStore, donateSouce: .exploreProfile, logoutDelegate: self, sourcePage: .explore, yirCoordinator: yirCoordinator)
+        coordinator.badgeDelegate = self
+        _profileCoordinator = coordinator
+        return coordinator
+    }
+
+    // MARK: - Navigation Bar
+
+    private func configureNavigationBar() {
+        let titleConfig = WMFNavigationBarTitleConfig(title: CommonStrings.homeTabTitle, customView: nil, alignment: .hidden)
+
+        let profileButtonConfig = self.profileButtonConfig(target: self, action: #selector(userDidTapProfile), dataStore: dataStore, yirDataController: yirDataController)
+        let tabsButtonConfig = self.tabsButtonConfig(target: self, action: #selector(userDidTapTabs), dataStore: dataStore)
+
+        configureNavigationBar(titleConfig: titleConfig, closeButtonConfig: nil, profileButtonConfig: profileButtonConfig, tabsButtonConfig: tabsButtonConfig, searchBarConfig: nil, hideNavigationBarOnScroll: false)
+
+        let logoBarButtonItem = UIBarButtonItem(image: UIImage(named: "W"), style: .plain, target: nil, action: nil)
+        logoBarButtonItem.accessibilityLabel = CommonStrings.plainWikipediaName
+        navigationItem.leftBarButtonItem = logoBarButtonItem
+        if #unavailable(iOS 26.0) {
+            logoBarButtonItem.tintColor = theme.colors.logoTintColor
+        }
+    }
+
+    @objc func userDidTapTabs() {
+        tabsCoordinator?.start()
+        ArticleTabsFunnel.shared.logIconClick(interface: .feed, project: nil)
+    }
+
+    @objc func userDidTapProfile() {
+        guard let languageCode = dataStore.languageLinkController.appLanguage?.languageCode,
+              DonateCoordinator.metricsID(for: .exploreProfile, languageCode: languageCode) != nil else {
+            return
+        }
+        profileCoordinator?.start()
+    }
+
+    func updateProfileButton() {
+        let config = self.profileButtonConfig(target: self, action: #selector(userDidTapProfile), dataStore: dataStore, yirDataController: yirDataController)
+        updateNavigationBarProfileButton(needsBadge: config.needsBadge, needsBadgeLabel: CommonStrings.profileButtonBadgeTitle, noBadgeLabel: CommonStrings.profileButtonTitle)
+    }
+
+    // MARK: - Themeable
+
+    func apply(theme: Theme) {
+        self.theme = theme
+        guard viewIfLoaded != nil else { return }
+        updateProfileButton()
+        profileCoordinator?.theme = theme
+        if #unavailable(iOS 26.0) {
+            navigationItem.leftBarButtonItem?.tintColor = theme.colors.logoTintColor
+        }
+    }
+}
+
+extension HomeViewController: LogoutCoordinatorDelegate {
+    func didTapLogout(authInstrument: InstrumentImpl) {
+        wmf_showKeepSavedArticlesOnDevicePanelIfNeeded(triggeredBy: .logout, theme: theme, authInstrument: authInstrument) {
+            self.dataStore.authenticationManager.logout(initiatedBy: .user, authInstrument: authInstrument)
+        }
+    }
+}
+
+extension HomeViewController: YearInReviewBadgeDelegate {
+    func updateYIRBadgeVisibility() {
+        updateProfileButton()
+    }
+}
+
+extension HomeViewController: WMFPreferredLanguagesViewControllerDelegate {
+    func languagesController(_ controller: WMFPreferredLanguagesViewController, didUpdatePreferredLanguages languages: [MWKLanguageLink]) {
+        reloadLanguages()
+    }
+}

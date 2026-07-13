@@ -1,0 +1,331 @@
+import UIKit
+import SwiftUI
+import PassKit
+
+public struct WMFTheme: Equatable {
+
+    public let name: String
+    public let userInterfaceStyle: UIUserInterfaceStyle
+    public let preferredStatusBarStyle: UIStatusBarStyle
+    public let keyboardAppearance: UIKeyboardAppearance
+    public let text: UIColor
+    public let secondaryText: UIColor
+    public let link: UIColor
+    public let accent: UIColor
+    public let destructive: UIColor
+    public let warning: UIColor
+    public let border: UIColor
+    public let newBorder: UIColor
+    public let paperBackground: UIColor
+    public let midBackground: UIColor
+    public let baseBackground: UIColor
+    public let popoverBackground: UIColor
+    public let icon: UIColor
+    public let iconBackground: UIColor
+    public let accessoryBackground: UIColor
+    public let inputAccessoryButtonTint: UIColor
+    public let inputAccessoryButtonSelectedTint: UIColor
+    public let inputAccessoryButtonSelectedBackgroundColor: UIColor
+    public let keyboardBarSearchFieldBackground: UIColor
+    public let diffCompareAccent: UIColor
+    public let editorOrange: UIColor
+    public let softEditorOrange: UIColor
+    public let editorPurple: UIColor
+    public let editorGreen: UIColor
+    public let softEditorGreen: UIColor
+    public let editorBlue: UIColor
+    public let softEditorBlue: UIColor
+    public let editorGray: UIColor
+    public let editorMatchForeground: UIColor
+    public let editorMatchBackground: UIColor
+    public let editorSelectedMatchBackground: UIColor
+    public let editorReplacedMatchBackground: UIColor
+    public let editorButtonSelectedBackground: UIColor
+    public let editorKeyboardShadow: UIColor
+    public let chromeBackground: UIColor
+    public let navigationBarTintColor: UIColor
+    public let secondaryAction: UIColor
+    public let darkBorder: UIColor
+    public let toastShadow: UIColor
+    public let tagText: UIColor
+    public let tagBackground: UIColor
+    public let batchSelectionBackground: UIColor
+    public let successGreen: UIColor
+
+    public var preferredColorScheme: ColorScheme {
+    return (self == WMFTheme.light || self == WMFTheme.sepia) ? .light : .dark
+    }
+
+    public var applePayPaymentButtonStyle: PayWithApplePayButtonStyle {
+    return (self == WMFTheme.light || self == WMFTheme.sepia) ? .black : .white
+    }
+
+    public static let light = WMFTheme(
+        name: "Light",
+        userInterfaceStyle: .light,
+        preferredStatusBarStyle: .darkContent,
+        keyboardAppearance: .light,
+        text: WMFColor.gray700,
+        secondaryText: WMFColor.gray500,
+        link: WMFColor.blue600,
+        accent: WMFColor.green600,
+        destructive: WMFColor.red600,
+        warning: WMFColor.orange600,
+        border: WMFColor.gray400,
+        newBorder: WMFColor.gray300,
+        paperBackground: WMFColor.white,
+        midBackground: WMFColor.gray100,
+        baseBackground: WMFColor.gray200,
+        popoverBackground: WMFColor.white,
+        icon: WMFColor.gray300,
+        iconBackground: WMFColor.gray500,
+        accessoryBackground: WMFColor.white,
+        inputAccessoryButtonTint: WMFColor.gray600,
+        inputAccessoryButtonSelectedTint: WMFColor.gray700,
+        inputAccessoryButtonSelectedBackgroundColor: WMFColor.gray200,
+        keyboardBarSearchFieldBackground: WMFColor.gray200,
+        diffCompareAccent: WMFColor.orange600,
+        editorOrange: WMFColor.orange600,
+        softEditorOrange: WMFColor.orange100alpha,
+        editorPurple: WMFColor.purple600,
+        editorGreen: WMFColor.green600,
+        softEditorGreen: WMFColor.green100alpha,
+        editorBlue: WMFColor.blue600,
+        softEditorBlue: WMFColor.blue100alpha,
+        editorGray: WMFColor.gray500,
+        editorMatchForeground: .black,
+        editorMatchBackground: WMFColor.lightMatchBackground,
+        editorSelectedMatchBackground: WMFColor.yellow600,
+        editorReplacedMatchBackground: WMFColor.matchReplacedBackground,
+        editorButtonSelectedBackground: WMFColor.gray200,
+        editorKeyboardShadow: WMFColor.gray200,
+        chromeBackground: WMFColor.white,
+        navigationBarTintColor: WMFColor.blue600,
+        secondaryAction: WMFColor.blue700,
+        darkBorder: WMFColor.borderDark5,
+        toastShadow: WMFColor.gray400,
+        tagText: WMFColor.blue600,
+        tagBackground: WMFColor.blue600.withAlphaComponent(0.1),
+        batchSelectionBackground: WMFColor.blue100,
+        successGreen: WMFColor.successGreen
+    )
+
+    public static let sepia = WMFTheme(
+        name: "Sepia",
+        userInterfaceStyle: .light,
+        preferredStatusBarStyle: .darkContent,
+        keyboardAppearance: .light,
+        text: WMFColor.gray700,
+        secondaryText: WMFColor.taupe600,
+        link: WMFColor.blue600,
+        accent: WMFColor.green600,
+        destructive: WMFColor.red700,
+        warning: WMFColor.orange600,
+        border: WMFColor.taupe200,
+        newBorder: WMFColor.taupe200,
+        paperBackground: WMFColor.beige100,
+        midBackground: WMFColor.beige300,
+        baseBackground: WMFColor.beige400,
+        popoverBackground: WMFColor.beige100,
+        icon: WMFColor.taupe600,
+        iconBackground: WMFColor.beige400,
+        accessoryBackground: WMFColor.beige300,
+        inputAccessoryButtonTint: WMFColor.gray600,
+        inputAccessoryButtonSelectedTint: WMFColor.gray700,
+        inputAccessoryButtonSelectedBackgroundColor: WMFColor.beige400,
+        keyboardBarSearchFieldBackground: WMFColor.gray200,
+        diffCompareAccent: WMFColor.orange600,
+        editorOrange: WMFColor.orange600,
+        softEditorOrange: WMFColor.orange100alpha,
+        editorPurple: WMFColor.purple600,
+        editorGreen: WMFColor.green600,
+        softEditorGreen: WMFColor.green100alpha,
+        editorBlue: WMFColor.blue600,
+        softEditorBlue: WMFColor.blue100alpha,
+        editorGray: WMFColor.taupe600,
+        editorMatchForeground: .black,
+        editorMatchBackground: WMFColor.lightMatchBackground,
+        editorSelectedMatchBackground: WMFColor.yellow600,
+        editorReplacedMatchBackground: WMFColor.matchReplacedBackground,
+        editorButtonSelectedBackground: WMFColor.beige400,
+        editorKeyboardShadow: WMFColor.taupe200,
+        chromeBackground: WMFColor.beige100,
+        navigationBarTintColor: WMFColor.blue600,
+        secondaryAction: WMFColor.blue700,
+        darkBorder: WMFColor.borderDark5,
+        toastShadow: WMFColor.taupe200,
+        tagText: .white,
+        tagBackground: WMFColor.blue300,
+        batchSelectionBackground: WMFColor.blue100,
+        successGreen: WMFColor.successGreen
+    )
+
+    public static let dark = WMFTheme(
+        name: "Dark",
+        userInterfaceStyle: .dark,
+        preferredStatusBarStyle: .lightContent,
+        keyboardAppearance: .dark,
+        text: WMFColor.gray100,
+        secondaryText: WMFColor.gray300,
+        link: WMFColor.blue300,
+        accent: WMFColor.green600,
+        destructive: WMFColor.red600,
+        warning: WMFColor.yellow600,
+        border: WMFColor.gray650,
+        newBorder: WMFColor.gray500,
+        paperBackground: WMFColor.gray675,
+        midBackground: WMFColor.gray700,
+        baseBackground: WMFColor.gray800,
+        popoverBackground: WMFColor.gray800,
+        icon: WMFColor.gray300,
+        iconBackground: WMFColor.gray675,
+        accessoryBackground: WMFColor.gray700,
+        inputAccessoryButtonTint: WMFColor.gray100,
+        inputAccessoryButtonSelectedTint: WMFColor.gray100,
+        inputAccessoryButtonSelectedBackgroundColor: WMFColor.gray800,
+        keyboardBarSearchFieldBackground: WMFColor.gray650,
+        diffCompareAccent: WMFColor.orange600,
+        editorOrange: WMFColor.yellow600,
+        softEditorOrange: WMFColor.softorange15,
+        editorPurple: WMFColor.red100,
+        editorGreen: WMFColor.green600,
+        softEditorGreen: WMFColor.softgreen15,
+        editorBlue: WMFColor.blue300,
+        softEditorBlue: WMFColor.softblue15,
+        editorGray: WMFColor.gray300,
+        editorMatchForeground: .black,
+        editorMatchBackground: WMFColor.darkMatchBackground,
+        editorSelectedMatchBackground: WMFColor.yellow600,
+        editorReplacedMatchBackground: WMFColor.matchReplacedBackground,
+        editorButtonSelectedBackground: WMFColor.gray600,
+        editorKeyboardShadow: WMFColor.gray800,
+        chromeBackground: WMFColor.gray650,
+        navigationBarTintColor: WMFColor.blue300,
+        secondaryAction: WMFColor.blue700,
+        darkBorder: WMFColor.borderDark0,
+        toastShadow: WMFColor.gray800,
+        tagText: .white,
+        tagBackground: WMFColor.blue300,
+        batchSelectionBackground: WMFColor.blue700,
+        successGreen: WMFColor.successGreen
+    )
+
+    public static let black = WMFTheme(
+        name: "Black",
+        userInterfaceStyle: .dark,
+        preferredStatusBarStyle: .lightContent,
+        keyboardAppearance: .dark,
+        text: WMFColor.gray100,
+        secondaryText: WMFColor.gray300,
+        link: WMFColor.blue300,
+        accent: WMFColor.green600,
+        destructive: WMFColor.red600,
+        warning: WMFColor.yellow600,
+        border: WMFColor.gray675,
+        newBorder: WMFColor.gray500,
+        paperBackground: WMFColor.black,
+        midBackground: WMFColor.gray700,
+        baseBackground: WMFColor.gray800,
+        popoverBackground: WMFColor.gray700,
+        icon: WMFColor.gray300,
+        iconBackground: WMFColor.gray675,
+        accessoryBackground: WMFColor.gray700,
+        inputAccessoryButtonTint: WMFColor.gray100,
+        inputAccessoryButtonSelectedTint: WMFColor.gray100,
+        inputAccessoryButtonSelectedBackgroundColor: WMFColor.gray800,
+        keyboardBarSearchFieldBackground: WMFColor.gray650,
+        diffCompareAccent: WMFColor.orange600,
+        editorOrange: WMFColor.yellow600,
+        softEditorOrange: WMFColor.orange600alpha,
+        editorPurple: WMFColor.red100,
+        editorGreen: WMFColor.green600,
+        softEditorGreen: WMFColor.green600alpha,
+        editorBlue: WMFColor.blue300,
+        softEditorBlue: WMFColor.blue600alpha,
+        editorGray: WMFColor.gray300,
+        editorMatchForeground: .black,
+        editorMatchBackground: WMFColor.darkMatchBackground,
+        editorSelectedMatchBackground: WMFColor.yellow600,
+        editorReplacedMatchBackground: WMFColor.matchReplacedBackground,
+        editorButtonSelectedBackground: WMFColor.gray600,
+        editorKeyboardShadow: WMFColor.gray700,
+        chromeBackground: WMFColor.gray650,
+        navigationBarTintColor: WMFColor.blue300,
+        secondaryAction: WMFColor.blue700,
+        darkBorder: WMFColor.borderDark0,
+        toastShadow: WMFColor.gray600,
+        tagText: .white,
+        tagBackground: WMFColor.blue300,
+        batchSelectionBackground: WMFColor.blue700,
+        successGreen: WMFColor.successGreen
+    )
+
+    // MARK: - Reading Challenge Semantic Colors (UIKit backing)
+
+    private static let readingChallengePinkPrimary     = UIColor(red: 245/255, green: 235/255, blue: 242/255, alpha: 1)
+    private static let readingChallengePurplePrimary     = UIColor(red: 230/255, green: 224/255, blue: 240/255, alpha: 1)
+    private static let readingChallengeOrangePrimary   = UIColor(red: 255/255, green: 234/255, blue: 212/255, alpha: 1)
+    private static let readingChallengeBluePrimary     = UIColor(red: 182/255, green: 212/255, blue: 251/255, alpha: 1)
+
+    private static let readingChallengePinkSecondary   = UIColor(red: 155/255, green:  82/255, blue: 127/255, alpha: 1)
+    private static let readingChallengePurpleSecondary   = UIColor(red: 83/255, green:  79/255, blue: 163/255, alpha: 1)
+    private static let readingChallengeOrangeSecondary = UIColor(red: 169/255, green:  82/255, blue:  38/255, alpha: 1)
+    private static let readingChallengeBlueSecondary   = UIColor(red:  48/255, green:  86/255, blue:  169/255, alpha: 1)
+
+    private static let readingChallengePinkTertiary    = UIColor(red: 198/255, green: 144/255, blue: 180/255, alpha: 1)
+    private static let readingChallengePurpleTertiary   = UIColor(red: 197/255, green:  185/255, blue: 221/255, alpha: 1)
+
+    private static let readingChallengeNotEnrolledBase = UIColor(red: 182/255, green: 212/255, blue: 251/255, alpha: 1)
+    private static let readingChallengeYellow          = UIColor(red: 255/255, green: 228/255, blue: 156/255, alpha: 1)
+    private static let readingChallengeNotLiveYet      = UIColor(red: 174/255, green: 223/255, blue: 205/255, alpha: 1)
+    private static let readingChallengeConcludedPill   = UIColor(red: 255/255, green: 204/255, blue: 51/255, alpha: 1)
+
+    // MARK: - ReadingChallengeColorSet
+
+    public enum ReadingChallengeColorSet {
+        case pink
+        case purple
+        case orange
+        case blue
+        case notEnrolled
+        case yellow
+        case green
+        case blueBlack
+        case concluded
+
+        /// Flat background color — used as a fallback when no gradient is defined.
+        public var primary: Color {
+            switch self {
+            case .pink:        return Color(uiColor: WMFTheme.readingChallengePinkPrimary)
+            case .purple:      return Color(uiColor: WMFTheme.readingChallengePurplePrimary)
+            case .orange:      return Color(uiColor: WMFTheme.readingChallengeOrangePrimary)
+            case .blue, .blueBlack:        return Color(uiColor: WMFTheme.readingChallengeBluePrimary)
+            case .notEnrolled: return Color(uiColor: WMFTheme.readingChallengeNotEnrolledBase)
+            case .yellow:      return Color(uiColor: WMFTheme.readingChallengeYellow)
+            case .green:       return Color(uiColor: WMFTheme.readingChallengeNotLiveYet)
+            case .concluded: return Color(uiColor: WMFTheme.readingChallengeBluePrimary)
+            }
+        }
+
+        /// Foreground color for text and icons.
+        public var secondary: Color {
+            switch self {
+            case .pink:        return Color(uiColor: WMFTheme.readingChallengePinkSecondary)
+            case .purple:      return Color(uiColor: WMFTheme.readingChallengePurpleSecondary)
+            case .orange:      return Color(uiColor: WMFTheme.readingChallengeOrangeSecondary)
+            case .blue:        return Color(uiColor: WMFTheme.readingChallengeBlueSecondary)
+            case .notEnrolled, .yellow, .green, .blueBlack, .concluded: return Color(uiColor: WMFColor.black)
+            }
+        }
+
+        /// Optional progress-bar fill color.
+        public var tertiary: Color? {
+            switch self {
+            case .pink:        return Color(uiColor: WMFTheme.readingChallengePinkTertiary)
+            case .purple:      return Color(uiColor: WMFTheme.readingChallengePurpleTertiary)
+            case .orange, .yellow, .blue, .notEnrolled, .green, .blueBlack:      return nil
+            case .concluded: return Color(uiColor: WMFTheme.readingChallengeConcludedPill)
+            }
+        }
+    }
+}
