@@ -8,8 +8,7 @@ struct LocationsListView: View {
     @State private var isPresentingCustomLocation = false
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-        return NavigationStack {
+        NavigationStack {
             content
                 .navigationTitle("Places")
                 .toolbar {

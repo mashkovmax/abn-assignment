@@ -35,7 +35,9 @@ struct LocationsService: LocationsServing {
     }
 
     func fetchLocations() async throws -> [Location] {
-        let (data, response) = try await session.data(from: url)
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+        
+        let (data, response) = try await session.data(for: request)
 
         guard let http = response as? HTTPURLResponse else {
             throw LocationsServiceError.invalidResponse
