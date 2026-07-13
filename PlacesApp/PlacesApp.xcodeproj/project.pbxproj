@@ -8,15 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		026D7C7063BDD0503706B8B9 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B6D00FD032577245A7A9C /* Location.swift */; };
+		0951A657F24D9E18FF49CD0E /* CustomLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CD83133F58205D5652CFC /* CustomLocationViewModel.swift */; };
 		09A7A4F0F8C99D767A94C4DB /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5525E1E8F1CAE434EB997D3E /* LocationsListView.swift */; };
 		305598294DFACE2338384654 /* LocationsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA3E4D6BA28C51638EF7397 /* LocationsViewModelTests.swift */; };
 		3FF88C1FED13C969067645FF /* WikipediaDeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45083477E5DB7B9751A35A87 /* WikipediaDeepLinkTests.swift */; };
+		41A625E22D4278DCFAAFAEAF /* CustomLocationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B21BACB51760FE1E5AA98F8 /* CustomLocationViewModelTests.swift */; };
 		542D10D82BF6D21B457FAE88 /* LocationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0485A8E406DB15B68860254 /* LocationsService.swift */; };
 		635CB8F4B102A998CAEF3D80 /* LocationDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB839565BDBF3C8A129FFB3 /* LocationDecodingTests.swift */; };
 		6B4D72AAE3D060E5C4539E8D /* LocationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8248D7D31426AD225078BFC2 /* LocationsViewModel.swift */; };
 		7A617624D81FBD6757751C1F /* WikipediaDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19D5AB002141CCEAAFDD50C4 /* WikipediaDeepLink.swift */; };
 		A3063FE34E8E127D33C00B7C /* CustomLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E2EFFB5F32BEC1443F685A /* CustomLocationView.swift */; };
 		B7A918EE8795FF800D92920D /* URLOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EDAE72A40F864CEC6B7EEC /* URLOpener.swift */; };
+		BEF85D572FD0C3A12887265F /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1187AA411F6A31E4F59961A1 /* GeocodingService.swift */; };
 		F29F531275BC524B598A81F3 /* PlacesAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC14B60BF1F7403E0DAF74F /* PlacesAppApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -31,8 +34,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1187AA411F6A31E4F59961A1 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		19D5AB002141CCEAAFDD50C4 /* WikipediaDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaDeepLink.swift; sourceTree = "<group>"; };
 		1FC14B60BF1F7403E0DAF74F /* PlacesAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesAppApp.swift; sourceTree = "<group>"; };
+		2C3CD83133F58205D5652CFC /* CustomLocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLocationViewModel.swift; sourceTree = "<group>"; };
+		3B21BACB51760FE1E5AA98F8 /* CustomLocationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLocationViewModelTests.swift; sourceTree = "<group>"; };
 		45083477E5DB7B9751A35A87 /* WikipediaDeepLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaDeepLinkTests.swift; sourceTree = "<group>"; };
 		5525E1E8F1CAE434EB997D3E /* LocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
 		6CA977A987D1C4E29C0C6A96 /* PlacesAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PlacesAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +100,7 @@
 		6B1FFBFD7CD40E9789118D75 /* PlacesAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				3B21BACB51760FE1E5AA98F8 /* CustomLocationViewModelTests.swift */,
 				FCB839565BDBF3C8A129FFB3 /* LocationDecodingTests.swift */,
 				DCA3E4D6BA28C51638EF7397 /* LocationsViewModelTests.swift */,
 				45083477E5DB7B9751A35A87 /* WikipediaDeepLinkTests.swift */,
@@ -113,9 +120,18 @@
 		BDB43BD0049482D6E88E6DF4 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				2C3CD83133F58205D5652CFC /* CustomLocationViewModel.swift */,
 				8248D7D31426AD225078BFC2 /* LocationsViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		CAB158A027F997269D36CB0C /* Geocoding */ = {
+			isa = PBXGroup;
+			children = (
+				1187AA411F6A31E4F59961A1 /* GeocodingService.swift */,
+			);
+			path = Geocoding;
 			sourceTree = "<group>";
 		};
 		DBB8E31B293B4B463ECD13B1 /* App */ = {
@@ -132,6 +148,7 @@
 				EAA4D89BBA9301E0B47C4149 /* Info.plist */,
 				DBB8E31B293B4B463ECD13B1 /* App */,
 				0D6777CD46CFCB58832F5868 /* Deeplink */,
+				CAB158A027F997269D36CB0C /* Geocoding */,
 				68722A73A16E22B2FD74FD08 /* Models */,
 				3F2CF9EE5A683AC992FCF824 /* Networking */,
 				BDB43BD0049482D6E88E6DF4 /* ViewModels */,
@@ -222,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41A625E22D4278DCFAAFAEAF /* CustomLocationViewModelTests.swift in Sources */,
 				635CB8F4B102A998CAEF3D80 /* LocationDecodingTests.swift in Sources */,
 				305598294DFACE2338384654 /* LocationsViewModelTests.swift in Sources */,
 				3FF88C1FED13C969067645FF /* WikipediaDeepLinkTests.swift in Sources */,
@@ -233,6 +251,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3063FE34E8E127D33C00B7C /* CustomLocationView.swift in Sources */,
+				0951A657F24D9E18FF49CD0E /* CustomLocationViewModel.swift in Sources */,
+				BEF85D572FD0C3A12887265F /* GeocodingService.swift in Sources */,
 				026D7C7063BDD0503706B8B9 /* Location.swift in Sources */,
 				09A7A4F0F8C99D767A94C4DB /* LocationsListView.swift in Sources */,
 				542D10D82BF6D21B457FAE88 /* LocationsService.swift in Sources */,

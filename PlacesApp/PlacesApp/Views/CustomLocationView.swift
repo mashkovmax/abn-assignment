@@ -1,45 +1,69 @@
 import SwiftUI
 
-/// A sheet letting the user type an arbitrary coordinate (and optional name)
-/// and open it in Wikipedia's Places tab.
+/// A sheet letting the user open an arbitrary coordinate in Wikipedia's Places
+/// tab. The coordinate can be typed directly, or looked up from a city / place
+/// name via `CLGeocoder`.
 ///
-/// The parent supplies `onOpen`, which validates + attempts the open and
-/// returns whether it succeeded; the sheet stays up on invalid input so the
-/// alert (owned by the parent) can be shown.
+/// The parent supplies `onOpen`, which validates + attempts the open and returns
+/// whether it succeeded; the sheet stays up on invalid input so the alert (owned
+/// by the parent) can be shown.
 struct CustomLocationView: View {
     /// `(name, latitude, longitude) -> openedSuccessfully`
     let onOpen: (String, String, String) -> Bool
 
     @Environment(\.dismiss) private var dismiss
-    @State private var name = ""
-    @State private var latitude = ""
-    @State private var longitude = ""
+    @State private var viewModel = CustomLocationViewModel()
 
     private var hasCoordinates: Bool {
-        !latitude.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !longitude.trimmingCharacters(in: .whitespaces).isEmpty
+        !viewModel.latitude.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !viewModel.longitude.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         NavigationStack {
             Form {
-                Section("Location") {
-                    TextField("Name (optional)", text: $name)
+                Section {
+                    TextField("Name or city", text: $viewModel.name)
                         .textInputAutocapitalization(.words)
-                        .accessibilityLabel("Location name, optional")
+                        .accessibilityLabel("Location name or city")
 
-                    TextField("Latitude (-90 to 90)", text: $latitude)
+                    Button {
+                        Task { await viewModel.lookUpCoordinates() }
+                    } label: {
+                        HStack {
+                            Label("Find coordinates from name", systemImage: "mappin.and.ellipse")
+                            Spacer()
+                            if viewModel.isSearching {
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(!viewModel.canLookUp || viewModel.isSearching)
+                    .accessibilityHint("Looks up the coordinates for the entered name")
+                } header: {
+                    Text("Location")
+                } footer: {
+                    if case .failed(let message) = viewModel.geocodeState {
+                        Text(message).foregroundStyle(.red)
+                    } else {
+                        Text("Type a city name and tap “Find coordinates”, or enter coordinates directly below.")
+                    }
+                }
+
+                Section("Coordinates") {
+                    TextField("Latitude (-90 to 90)", text: $viewModel.latitude)
                         .keyboardType(.numbersAndPunctuation)
                         .accessibilityLabel("Latitude")
 
-                    TextField("Longitude (-180 to 180)", text: $longitude)
+                    TextField("Longitude (-180 to 180)", text: $viewModel.longitude)
                         .keyboardType(.numbersAndPunctuation)
                         .accessibilityLabel("Longitude")
                 }
 
                 Section {
                     Button {
-                        _ = onOpen(name, latitude, longitude)
+                        _ = onOpen(viewModel.name, viewModel.latitude, viewModel.longitude)
                     } label: {
                         Text("Open in Wikipedia")
                             .frame(maxWidth: .infinity)

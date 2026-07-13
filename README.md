@@ -49,7 +49,8 @@ A minimal app that demonstrates the feature.
   showing their coordinates.
 - **Tapping a location** opens the Wikipedia app at that coordinate.
 - The **＋** button lets the user enter a **custom location** (name optional,
-  latitude/longitude validated) and open Wikipedia there.
+  latitude/longitude validated) and open Wikipedia there. It can also **look up a
+  city name** and fill in the coordinates automatically via `CLGeocoder`.
 - Pull-to-refresh, loading/error states with retry, and a clear alert if the
   Wikipedia app isn't installed.
 
@@ -62,6 +63,7 @@ PlacesApp/
   Models/          Location, LocationsResponse (Codable, lat/long → latitude/longitude)
   Networking/      LocationsServing protocol + LocationsService (async URLSession)
   Deeplink/        WikipediaDeepLink (pure URL builder) + URLOpening abstraction
+  Geocoding/       Geocoding protocol + CLGeocoderService (city name → coordinate)
   ViewModels/      LocationsViewModel (@Observable, @MainActor)
   Views/           LocationsListView, CustomLocationView
 ```
@@ -84,7 +86,7 @@ xcodegen generate      # only needed if PlacesApp.xcodeproj is missing / to rege
 open PlacesApp.xcodeproj
 ```
 
-Then run the **PlacesApp** scheme on an iOS 17+ simulator.
+Then run the **PlacesApp** scheme on an iOS 26+ simulator.
 
 > The `.xcodeproj` is generated from [`project.yml`](PlacesApp/project.yml) with
 > [XcodeGen](https://github.com/yonyz/XcodeGen). It is committed, so you can open
