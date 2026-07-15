@@ -83,16 +83,11 @@ PlacesApp/
 ### Running it
 
 ```bash
-cd PlacesApp
-xcodegen generate      # only needed if PlacesApp.xcodeproj is missing / to regenerate
-open PlacesApp.xcodeproj
+open PlacesApp/PlacesApp.xcodeproj
 ```
 
-Then run the **PlacesApp** scheme on an iOS 26+ simulator.
-
-> The `.xcodeproj` is generated from [`project.yml`](PlacesApp/project.yml) with
-> [XcodeGen](https://github.com/yonyz/XcodeGen). It is committed, so you can open
-> and run without installing anything; regenerate only if you change `project.yml`.
+Then run the **PlacesApp** scheme on an iOS 26+ simulator. No extra tooling is
+required — the `.xcodeproj` is committed and self-contained.
 
 ### Tests
 
