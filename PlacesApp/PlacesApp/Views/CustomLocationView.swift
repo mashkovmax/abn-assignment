@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 /// A sheet letting the user add an arbitrary coordinate to the locations list.
 /// The coordinate can be typed directly, or looked up from a city / place name
@@ -12,10 +13,16 @@ struct CustomLocationView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = CustomLocationViewModel()
+    @State private var cameraPosition: MapCameraPosition = .automatic
 
     private var hasCoordinates: Bool {
         !viewModel.latitude.trimmingCharacters(in: .whitespaces).isEmpty &&
         !viewModel.longitude.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// A valid coordinate parsed from the current input, if any.
+    private var previewCoordinate: CustomCoordinate? {
+        CustomCoordinate(latitude: viewModel.latitude, longitude: viewModel.longitude)
     }
 
     var body: some View {
@@ -60,6 +67,24 @@ struct CustomLocationView: View {
                         .accessibilityLabel("Longitude")
                 }
 
+                if let coordinate = previewCoordinate {
+                    Section("Preview") {
+                        Map(position: $cameraPosition, interactionModes: []) {
+                            Marker(
+                                viewModel.trimmedName.isEmpty ? "Selected location" : viewModel.trimmedName,
+                                coordinate: coordinate.clLocationCoordinate
+                            )
+                        }
+                        .frame(height: 200)
+                        .listRowInsets(EdgeInsets())
+                        .accessibilityLabel("Map preview of the selected location")
+                    }
+                    .onAppear { recenter(on: coordinate) }
+                    .onChange(of: previewCoordinate) { _, new in
+                        if let new { recenter(on: new) }
+                    }
+                }
+
                 Section {
                     Button {
                         if let location = viewModel.validatedLocation() {
@@ -90,6 +115,22 @@ struct CustomLocationView: View {
                 }
             }
         }
+    }
+
+    private func recenter(on coordinate: CustomCoordinate) {
+        cameraPosition = .region(
+            MKCoordinateRegion(
+                center: coordinate.clLocationCoordinate,
+                latitudinalMeters: 20_000,
+                longitudinalMeters: 20_000
+            )
+        )
+    }
+}
+
+private extension CustomCoordinate {
+    var clLocationCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }
 

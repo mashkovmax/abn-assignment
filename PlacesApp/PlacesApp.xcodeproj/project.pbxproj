@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A55E7A55E7A55E7A55E70002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A55E7A55E7A55E7A55E70001 /* Assets.xcassets */; };
 		026D7C7063BDD0503706B8B9 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B6D00FD032577245A7A9C /* Location.swift */; };
 		0951A657F24D9E18FF49CD0E /* CustomLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CD83133F58205D5652CFC /* CustomLocationViewModel.swift */; };
 		09A7A4F0F8C99D767A94C4DB /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5525E1E8F1CAE434EB997D3E /* LocationsListView.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A55E7A55E7A55E7A55E70001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1187AA411F6A31E4F59961A1 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
 		19D5AB002141CCEAAFDD50C4 /* WikipediaDeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaDeepLink.swift; sourceTree = "<group>"; };
 		1FC14B60BF1F7403E0DAF74F /* PlacesAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesAppApp.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 		FDB83BF53D5F65E72D3C5018 /* PlacesApp */ = {
 			isa = PBXGroup;
 			children = (
+				A55E7A55E7A55E7A55E70001 /* Assets.xcassets */,
 				EAA4D89BBA9301E0B47C4149 /* Info.plist */,
 				DBB8E31B293B4B463ECD13B1 /* App */,
 				0D6777CD46CFCB58832F5868 /* Deeplink */,
@@ -189,6 +192,7 @@
 			buildConfigurationList = AD39A53B062914B5A312B29E /* Build configuration list for PBXNativeTarget "PlacesApp" */;
 			buildPhases = (
 				C9F216A5B6E57E7135B68867 /* Sources */,
+				A55E7A55E7A55E7A55E70003 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -239,6 +243,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A55E7A55E7A55E7A55E70003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A55E7A55E7A55E7A55E70002 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9312924828C05488EF89B2C7 /* Sources */ = {
@@ -363,6 +378,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PlacesApp/Info.plist;
@@ -380,6 +396,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PlacesApp/Info.plist;
