@@ -11,6 +11,9 @@ This repository contains two things:
 
 The two apps talk to each other over a custom URL scheme (`wikipedia://`).
 
+**Built with** Xcode 26 / iOS 26 SDK; PlacesApp targets iOS 26+ and uses Swift
+Concurrency, the Observation framework, and MapKit's `MKGeocodingRequest`.
+
 ---
 
 ## The feature
@@ -40,9 +43,9 @@ current location.
 
 ## Screenshots
 
-| PlacesApp list (dark) | Custom location + map preview | Wikipedia opened at the coordinate |
+| PlacesApp list | Custom location + map preview | Wikipedia opened at the coordinate |
 | :---: | :---: | :---: |
-| ![Places list](docs/screenshots/places-list-dark.jpg) | ![Custom location](docs/screenshots/places-custom-location-map.jpg) | ![Deep link result](docs/screenshots/deeplink-places-amsterdam.jpg) |
+| ![Places list](docs/screenshots/places-list.png) | ![Custom location](docs/screenshots/places-custom-location-map.png) | ![Deep link result](docs/screenshots/deeplink-places-amsterdam.png) |
 
 The third screenshot is the modified Wikipedia app after firing
 `wikipedia://places?lat=52.3547498&lon=4.8339215&title=Amsterdam` — it lands on the
@@ -103,6 +106,9 @@ required — the `.xcodeproj` is committed and self-contained.
 
 ### Tests
 
+**43 tests across 6 suites**, written with the **Swift Testing** framework
+(`@Test` / `#expect`):
+
 ```bash
 cd PlacesApp
 xcodebuild -scheme PlacesApp -project PlacesApp.xcodeproj \
@@ -110,11 +116,17 @@ xcodebuild -scheme PlacesApp -project PlacesApp.xcodeproj \
 ```
 
 Covered:
-- JSON decoding, including the entry **without a name** and the `lat`/`long` key mapping.
-- `WikipediaDeepLink` URL construction (scheme/host, query items, title encoding,
-  locale-independent decimal formatting).
-- Coordinate validation (range checks, whitespace trimming).
-- View-model loading (success/failure) and open behavior, using mocks.
+- **Model** — JSON decoding incl. the entry **without a name**, `lat`/`long` key
+  mapping, `displayName`/coordinate formatting, Codable round-trip.
+- **Networking** — real `LocationsService` against a stubbed `URLSession`
+  (`URLProtocol`): valid decode, non-2xx status, malformed JSON, transport error.
+- **Deep link** — `WikipediaDeepLink` URL construction (scheme/host, query items,
+  title encoding, locale-independent decimals).
+- **View models** — feed loading (success/failure), open behavior, add-to-list +
+  de-duplication, coordinate validation, and MapKit geocoding — all with mocks, so
+  no network or `UIApplication` is touched.
+
+The Wikipedia-side change is also covered by unit tests — see Part 2.
 
 ---
 
@@ -143,26 +155,59 @@ The change follows the app's existing deep-link pipeline
 
 4. **`docs/url_schemes.md`** — documents the new coordinate deep link.
 
-### Trying the deep link directly
+The change is unit-tested in the app's own test target:
+**`WikipediaUnitTests/Code/NSUserActivity+WMFExtensionsTest.m`** adds cases for the
+`lat`/`lon`/`title` parsing (valid, negative, no-title, incomplete-coords-ignored).
 
-With the Wikipedia app installed on a simulator:
+```bash
+cd wikipedia-ios && scripts/setup_bundle_id ci
+xcodebuild test -scheme Wikipedia -project Wikipedia.xcodeproj \
+  -destination 'id=<booted-sim-udid>' -only-testing:WikipediaUnitTests/NSUserActivity_WMFExtensions_wmf_activityForWikipediaScheme_Test \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+### Building & running Wikipedia
+
+One-time signing config (safe defaults, no prompt), then build:
+
+```bash
+cd wikipedia-ios && scripts/setup_bundle_id ci
+```
+
+To just **compile**, `CODE_SIGNING_ALLOWED=NO` is fine. To actually **run** it, the
+app needs its app-group entitlement applied or it crashes on launch in
+`MWKDataStore` (the shared container resolves to `nil`). Ad-hoc signing is enough
+on the simulator:
+
+```bash
+xcodebuild -scheme Wikipedia -project Wikipedia.xcodeproj \
+  -destination 'id=<booted-sim-udid>' \
+  CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES build
+```
+
+Then install the built `.app`, launch it, skip onboarding, and fire the deep link:
 
 ```bash
 xcrun simctl openurl booted "wikipedia://places?lat=52.3547498&lon=4.8339215&title=Amsterdam"
 ```
 
-### Building Wikipedia
+(From SpringBoard/`simctl`, iOS shows a one-time "Open in Wikipedia?" prompt — tap
+**Open**. The result is the third screenshot above.)
 
-The upstream project needs a one-time signing config generated (safe defaults, no
-prompt):
+---
 
-```bash
-cd wikipedia-ios
-scripts/setup_bundle_id ci
-xcodebuild -scheme Wikipedia -project Wikipedia.xcodeproj \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  CODE_SIGNING_ALLOWED=NO build
-```
+## Assignment requirements
+
+- [x] Clone the Wikipedia app and modify it so it can be deep-linked to the Places
+      tab at a given coordinate (`wikipedia://places?lat=..&lon=..`)
+- [x] Test app fetches locations from the JSON feed
+- [x] Tapping a location calls Wikipedia the new way
+- [x] User can enter/add a custom location and open Wikipedia there
+- [x] SwiftUI for the Places app
+- [x] ReadMe
+- [x] Unit tests (43 Places + 10 Wikipedia)
+- [x] Bonus — Swift Concurrency & Accessibility
+- [x] Worked locally with git; shared as a public GitHub repo
 
 ---
 
