@@ -93,6 +93,11 @@ struct CustomLocationView: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
     CustomLocationView { _ in } // onAdd
+}
+
+#Preview("Dark") {
+    CustomLocationView { _ in }
+        .preferredColorScheme(.dark)
 }

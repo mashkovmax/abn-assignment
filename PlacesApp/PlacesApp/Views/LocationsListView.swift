@@ -143,6 +143,11 @@ struct LocationRow: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
     LocationsListView()
+}
+
+#Preview("Dark") {
+    LocationsListView()
+        .preferredColorScheme(.dark)
 }
