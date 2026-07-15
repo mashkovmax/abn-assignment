@@ -38,6 +38,18 @@ current location.
 
 ---
 
+## Screenshots
+
+| PlacesApp list (dark) | Custom location + map preview | Wikipedia opened at the coordinate |
+| :---: | :---: | :---: |
+| ![Places list](docs/screenshots/places-list-dark.jpg) | ![Custom location](docs/screenshots/places-custom-location-map.jpg) | ![Deep link result](docs/screenshots/deeplink-places-amsterdam.jpg) |
+
+The third screenshot is the modified Wikipedia app after firing
+`wikipedia://places?lat=52.3547498&lon=4.8339215&title=Amsterdam` — it lands on the
+**Places** tab centered on **Amsterdam** with nearby articles, not the user's location.
+
+---
+
 ## Part 1 — PlacesApp (SwiftUI)
 
 A minimal app that demonstrates the feature.
