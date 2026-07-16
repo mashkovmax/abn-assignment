@@ -32,7 +32,4 @@ struct Location: Identifiable, Equatable, Codable, Sendable {
     }
 }
 
-/// Top-level shape of `locations.json`: `{ "locations": [ ... ] }`.
-struct LocationsResponse: Codable, Sendable {
-    let locations: [Location]
-}
+
