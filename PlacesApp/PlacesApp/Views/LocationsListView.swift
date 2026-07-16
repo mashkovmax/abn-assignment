@@ -20,6 +20,11 @@ struct LocationsListView: View {
                         }
                         .accessibilityLabel("Add custom location")
                     }
+                    if !viewModel.customLocations.isEmpty {
+                        ToolbarItem(placement: .topBarLeading) {
+                            EditButton()
+                        }
+                    }
                 }
                 .sheet(isPresented: $isPresentingCustomLocation) {
                     CustomLocationView { location in
@@ -58,7 +63,7 @@ struct LocationsListView: View {
         List {
             if !viewModel.customLocations.isEmpty {
                 Section("Your locations") {
-                    locationRows(viewModel.customLocations)
+                    locationRows(viewModel.customLocations, onDelete: viewModel.deleteCustomLocations)
                 }
             }
 
@@ -84,7 +89,10 @@ struct LocationsListView: View {
     }
 
     @ViewBuilder
-    private func locationRows(_ locations: [Location]) -> some View {
+    private func locationRows(
+        _ locations: [Location],
+        onDelete: ((IndexSet) -> Void)? = nil
+    ) -> some View {
         ForEach(locations) { location in
             Button {
                 viewModel.open(location)
@@ -93,6 +101,7 @@ struct LocationsListView: View {
             }
             .buttonStyle(.plain)
         }
+        .onDelete(perform: onDelete)
     }
 
     private func errorView(_ message: String) -> some View {

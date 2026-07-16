@@ -68,6 +68,11 @@ final class LocationsViewModel {
         customLocations.insert(location, at: 0)
     }
 
+    /// Removes user-added locations at the given list offsets (swipe-to-delete).
+    func deleteCustomLocations(at offsets: IndexSet) {
+        customLocations.remove(atOffsets: offsets)
+    }
+
     private func openWikipedia(_ url: URL) {
         guard opener.canOpen(url) else {
             alert = .wikipediaNotInstalled

@@ -68,6 +68,17 @@ struct LocationsViewModelTests {
         #expect(opener.openedURLs.isEmpty)
     }
 
+    @Test func deleteCustomLocationRemovesAtOffset() {
+        let viewModel = LocationsViewModel(service: MockService(), opener: MockOpener())
+        viewModel.addCustomLocation(Location(name: "A", latitude: 1, longitude: 1))
+        viewModel.addCustomLocation(Location(name: "B", latitude: 2, longitude: 2))
+        // customLocations == [B, A] (newest first); delete the first one.
+        viewModel.deleteCustomLocations(at: IndexSet(integer: 0))
+
+        #expect(viewModel.customLocations.count == 1)
+        #expect(viewModel.customLocations.first?.name == "A")
+    }
+
     @Test func addingDuplicateMovesItToTopWithoutDuplicating() {
         let viewModel = LocationsViewModel(service: MockService(), opener: MockOpener())
 

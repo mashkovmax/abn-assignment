@@ -68,6 +68,7 @@ A minimal app that demonstrates the feature.
   the coordinates automatically via MapKit geocoding (`MKGeocodingRequest`). The
   added place appears at the top of the list under "Your locations", and the user
   taps it there to open Wikipedia — the same interaction as any feed location.
+  Custom locations can be removed via swipe-to-delete or the Edit button.
 - Pull-to-refresh, loading/error states with retry, and a clear alert if the
   Wikipedia app isn't installed.
 
@@ -106,7 +107,7 @@ required — the `.xcodeproj` is committed and self-contained.
 
 ### Tests
 
-**43 tests across 6 suites**, written with the **Swift Testing** framework
+**44 tests across 6 suites**, written with the **Swift Testing** framework
 (`@Test` / `#expect`):
 
 ```bash
@@ -205,7 +206,7 @@ xcrun simctl openurl booted "wikipedia://places?lat=52.3547498&lon=4.8339215&tit
 - [x] User can enter/add a custom location and open Wikipedia there
 - [x] SwiftUI for the Places app
 - [x] ReadMe
-- [x] Unit tests (43 Places + 10 Wikipedia)
+- [x] Unit tests (44 Places + 10 Wikipedia)
 - [x] Bonus — Swift Concurrency & Accessibility
 - [x] Worked locally with git; shared as a public GitHub repo
 
